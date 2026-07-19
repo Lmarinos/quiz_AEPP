@@ -1,0 +1,974 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#182848">
+  <title>Δοκιμαστικό Quiz ΑΕΠΠ – 5 Ερωτήσεις</title>
+  <style>
+    :root {
+      --navy: #182848;
+      --navy-2: #243b55;
+      --blue: #2563eb;
+      --blue-dark: #1d4ed8;
+      --green: #15803d;
+      --red: #b91c1c;
+      --amber: #b45309;
+      --bg: #f4f7fb;
+      --card: #ffffff;
+      --text: #172033;
+      --muted: #667085;
+      --border: #d7deea;
+      --shadow: 0 18px 50px rgba(24, 40, 72, .15);
+      --radius: 22px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top right, rgba(37, 99, 235, .18), transparent 34%),
+        linear-gradient(145deg, #eef3fa 0%, #f9fbff 48%, #edf2f8 100%);
+    }
+
+    button, input { font: inherit; }
+
+    .page {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .topbar {
+      background: linear-gradient(135deg, var(--navy), var(--navy-2));
+      color: white;
+      padding: 20px max(18px, env(safe-area-inset-left));
+      box-shadow: 0 5px 22px rgba(17, 24, 39, .2);
+    }
+
+    .topbar-inner {
+      width: min(920px, 100%);
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 13px;
+    }
+
+    .logo {
+      width: 46px;
+      height: 46px;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      font-weight: 900;
+      background: rgba(255,255,255,.16);
+      border: 1px solid rgba(255,255,255,.25);
+      letter-spacing: .5px;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: clamp(1rem, 3.5vw, 1.35rem);
+      line-height: 1.2;
+    }
+
+    .brand p {
+      margin: 4px 0 0;
+      font-size: .88rem;
+      opacity: .8;
+    }
+
+    .main {
+      width: min(920px, calc(100% - 28px));
+      margin: 28px auto;
+      flex: 1;
+    }
+
+    .card {
+      background: rgba(255,255,255,.96);
+      border: 1px solid rgba(215, 222, 234, .85);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .screen {
+      display: none;
+      padding: clamp(22px, 5vw, 42px);
+    }
+
+    .screen.active {
+      display: block;
+      animation: fadeIn .25s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(5px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .intro-badge {
+      width: max-content;
+      max-width: 100%;
+      background: #e8efff;
+      color: #1949b8;
+      border-radius: 999px;
+      padding: 8px 13px;
+      font-weight: 800;
+      font-size: .82rem;
+      letter-spacing: .2px;
+      margin-bottom: 16px;
+    }
+
+    h2 {
+      margin: 0 0 12px;
+      font-size: clamp(1.55rem, 5vw, 2.45rem);
+      line-height: 1.15;
+      color: var(--navy);
+    }
+
+    .lead {
+      color: var(--muted);
+      font-size: 1.03rem;
+      line-height: 1.65;
+      margin: 0 0 24px;
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin: 22px 0 28px;
+    }
+
+    .info-box {
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 15px;
+      background: #f8faff;
+    }
+
+    .info-box strong {
+      display: block;
+      font-size: 1.25rem;
+      color: var(--navy);
+      margin-bottom: 3px;
+    }
+
+    .info-box span {
+      color: var(--muted);
+      font-size: .87rem;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1.4fr .8fr;
+      gap: 14px;
+      margin-top: 18px;
+    }
+
+    label {
+      display: block;
+      font-weight: 750;
+      margin-bottom: 7px;
+      color: #27344e;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      border: 1.5px solid var(--border);
+      border-radius: 13px;
+      padding: 14px 15px;
+      background: white;
+      color: var(--text);
+      outline: none;
+      transition: .2s;
+    }
+
+    input[type="text"]:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 4px rgba(37, 99, 235, .12);
+    }
+
+    .privacy {
+      margin: 16px 0 0;
+      padding: 13px 14px;
+      border-radius: 13px;
+      background: #fff8e8;
+      color: #754d06;
+      font-size: .87rem;
+      line-height: 1.5;
+      border: 1px solid #f4d99a;
+    }
+
+    .error {
+      color: var(--red);
+      margin-top: 10px;
+      font-size: .9rem;
+      font-weight: 700;
+      min-height: 1.3em;
+    }
+
+    .btn {
+      appearance: none;
+      border: 0;
+      border-radius: 14px;
+      padding: 14px 20px;
+      font-weight: 850;
+      cursor: pointer;
+      transition: transform .15s ease, box-shadow .15s ease, opacity .15s ease;
+      min-height: 50px;
+    }
+
+    .btn:hover:not(:disabled) {
+      transform: translateY(-1px);
+    }
+
+    .btn:active:not(:disabled) {
+      transform: translateY(0);
+    }
+
+    .btn-primary {
+      color: white;
+      background: linear-gradient(135deg, var(--blue), var(--blue-dark));
+      box-shadow: 0 10px 22px rgba(37, 99, 235, .24);
+    }
+
+    .btn-secondary {
+      background: #eef2f7;
+      color: #25314a;
+    }
+
+    .btn-danger {
+      color: white;
+      background: linear-gradient(135deg, #d34444, #aa2020);
+      box-shadow: 0 10px 22px rgba(185, 28, 28, .2);
+    }
+
+    .btn:disabled {
+      cursor: not-allowed;
+      opacity: .48;
+      box-shadow: none;
+    }
+
+    .start-btn {
+      width: 100%;
+      margin-top: 22px;
+    }
+
+    .quiz-header {
+      padding: 22px clamp(20px, 4vw, 34px) 18px;
+      background: #f8faff;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .quiz-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 13px;
+    }
+
+    .quiz-meta strong {
+      color: var(--navy);
+    }
+
+    .student-chip {
+      max-width: 55%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      color: var(--muted);
+      font-size: .9rem;
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 10px;
+      background: #e3e9f2;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #2563eb, #14b8a6);
+      transition: width .25s ease;
+    }
+
+    .quiz-body {
+      padding: clamp(22px, 5vw, 38px);
+    }
+
+    .question-number {
+      color: var(--blue);
+      font-weight: 900;
+      font-size: .9rem;
+      text-transform: uppercase;
+      letter-spacing: .4px;
+      margin-bottom: 10px;
+    }
+
+    .question-text {
+      margin: 0 0 24px;
+      font-size: clamp(1.2rem, 4vw, 1.55rem);
+      line-height: 1.45;
+      color: var(--navy);
+    }
+
+    .options {
+      display: grid;
+      gap: 12px;
+    }
+
+    .option {
+      position: relative;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      border: 1.5px solid var(--border);
+      border-radius: 15px;
+      padding: 15px;
+      cursor: pointer;
+      background: white;
+      transition: .18s ease;
+      user-select: none;
+    }
+
+    .option:hover {
+      border-color: #96afe4;
+      background: #f8faff;
+    }
+
+    .option.selected {
+      border-color: var(--blue);
+      background: #edf3ff;
+      box-shadow: 0 0 0 3px rgba(37,99,235,.10);
+    }
+
+    .option input {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .option-letter {
+      flex: 0 0 34px;
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      display: grid;
+      place-items: center;
+      font-weight: 900;
+      color: #41506b;
+      background: #edf1f7;
+      transition: .18s ease;
+    }
+
+    .option.selected .option-letter {
+      color: white;
+      background: var(--blue);
+    }
+
+    .option-text {
+      padding-top: 5px;
+      line-height: 1.45;
+      font-weight: 650;
+    }
+
+    .quiz-actions {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 28px;
+    }
+
+    .quiz-actions .btn {
+      min-width: 128px;
+    }
+
+    .result-wrap {
+      text-align: center;
+    }
+
+    .score-ring {
+      width: 170px;
+      height: 170px;
+      margin: 10px auto 22px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: conic-gradient(var(--blue) var(--score-angle, 0deg), #e5eaf2 0);
+      position: relative;
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,.03);
+    }
+
+    .score-ring::before {
+      content: "";
+      position: absolute;
+      inset: 13px;
+      border-radius: 50%;
+      background: white;
+    }
+
+    .score-content {
+      position: relative;
+      z-index: 1;
+    }
+
+    .score-main {
+      font-size: 2.25rem;
+      font-weight: 950;
+      color: var(--navy);
+      line-height: 1;
+    }
+
+    .score-sub {
+      color: var(--muted);
+      font-weight: 750;
+      margin-top: 6px;
+    }
+
+    .result-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin: 24px auto;
+      max-width: 600px;
+    }
+
+    .stat {
+      background: #f7f9fc;
+      border: 1px solid var(--border);
+      border-radius: 15px;
+      padding: 14px 10px;
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 1.45rem;
+      color: var(--navy);
+    }
+
+    .stat span {
+      color: var(--muted);
+      font-size: .84rem;
+    }
+
+    .send-status {
+      margin: 18px auto 0;
+      max-width: 650px;
+      border-radius: 14px;
+      padding: 13px 15px;
+      font-weight: 700;
+      line-height: 1.45;
+    }
+
+    .send-status.sending {
+      color: #7a4a05;
+      background: #fff7e6;
+      border: 1px solid #f3d49a;
+    }
+
+    .send-status.success {
+      color: #126133;
+      background: #ecf9f0;
+      border: 1px solid #b6e2c3;
+    }
+
+    .send-status.fail {
+      color: #8d1b1b;
+      background: #fff0f0;
+      border: 1px solid #efbcbc;
+    }
+
+    .retry {
+      margin-top: 12px;
+      display: none;
+    }
+
+    .footer {
+      width: min(920px, calc(100% - 28px));
+      margin: 0 auto 22px;
+      text-align: center;
+      color: #667085;
+      font-size: .82rem;
+      line-height: 1.5;
+    }
+
+    .noscript {
+      margin: 30px auto;
+      max-width: 700px;
+      padding: 20px;
+      background: white;
+      border: 2px solid #b91c1c;
+      border-radius: 14px;
+      color: #7f1d1d;
+    }
+
+    @media (max-width: 640px) {
+      .topbar-inner { align-items: flex-start; }
+      .brand p { display: none; }
+      .main { margin-top: 16px; }
+      .screen { padding: 22px 18px; }
+      .info-grid { grid-template-columns: 1fr; }
+      .form-grid { grid-template-columns: 1fr; }
+      .quiz-meta { align-items: flex-start; }
+      .student-chip { max-width: 47%; }
+      .quiz-actions { position: sticky; bottom: 0; padding-top: 14px; background: linear-gradient(transparent, white 25%); }
+      .quiz-actions .btn { min-width: 0; flex: 1; padding-inline: 12px; }
+      .result-stats { grid-template-columns: 1fr; }
+      .score-ring { width: 150px; height: 150px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="topbar">
+      <div class="topbar-inner">
+        <div class="brand">
+          <div class="logo">ΑΕΠΠ</div>
+          <div>
+            <h1>Δοκιμαστικό Quiz Πληροφορικής</h1>
+            <p>Έλεγχος αποστολής αποτελεσμάτων</p>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="main">
+      <div class="card">
+        <section id="startScreen" class="screen active">
+          <div class="intro-badge">ΔΟΚΙΜΑΣΤΙΚΟ QUIZ</div>
+          <h2>Έλεγξε τις γνώσεις σου</h2>
+          <p class="lead">
+            Απάντησε σε 5 ερωτήσεις πολλαπλής επιλογής από τη θεωρία των
+            κεφαλαίων «Ανάλυση Προβλήματος» και «Βασικές Έννοιες Προγραμματισμού».
+            Η σειρά των ερωτήσεων και των επιλογών αλλάζει αυτόματα.
+          </p>
+
+          <div class="info-grid">
+            <div class="info-box"><strong>5</strong><span>ερωτήσεις</span></div>
+            <div class="info-box"><strong>1</strong><span>σωστή επιλογή</span></div>
+            <div class="info-box"><strong>/20</strong><span>τελικός βαθμός</span></div>
+          </div>
+
+          <div class="form-grid">
+            <div>
+              <label for="studentName">Ονοματεπώνυμο μαθητή</label>
+              <input id="studentName" type="text" autocomplete="name" maxlength="80"
+                     placeholder="π.χ. Μαρία Παπαδοπούλου">
+            </div>
+            <div>
+              <label for="studentClass">Τμήμα</label>
+              <input id="studentClass" type="text" maxlength="30"
+                     placeholder="π.χ. Γ1">
+            </div>
+          </div>
+          <div id="startError" class="error" aria-live="polite"></div>
+
+          <div class="privacy">
+            Με την οριστική υποβολή αποστέλλονται στον καθηγητή το ονοματεπώνυμο,
+            το τμήμα, η βαθμολογία και οι απαντήσεις σου.
+          </div>
+
+          <button id="startBtn" class="btn btn-primary start-btn" type="button">
+            Έναρξη Quiz
+          </button>
+        </section>
+
+        <section id="quizScreen" class="screen" style="padding:0">
+          <div class="quiz-header">
+            <div class="quiz-meta">
+              <strong id="progressText">Ερώτηση 1 από 5</strong>
+              <span id="studentChip" class="student-chip"></span>
+            </div>
+            <div class="progress-track" aria-hidden="true">
+              <div id="progressBar" class="progress-bar"></div>
+            </div>
+          </div>
+
+          <div class="quiz-body">
+            <div id="questionNumber" class="question-number"></div>
+            <h2 id="questionText" class="question-text"></h2>
+            <div id="options" class="options" role="radiogroup"></div>
+            <div id="questionError" class="error" aria-live="polite"></div>
+
+            <div class="quiz-actions">
+              <button id="prevBtn" class="btn btn-secondary" type="button">Προηγούμενη</button>
+              <button id="nextBtn" class="btn btn-primary" type="button">Επόμενη</button>
+            </div>
+          </div>
+        </section>
+
+        <section id="resultScreen" class="screen">
+          <div class="result-wrap">
+            <div class="intro-badge" style="margin-inline:auto">ΟΛΟΚΛΗΡΩΘΗΚΕ</div>
+            <h2>Το Quiz υποβλήθηκε</h2>
+            <p id="resultName" class="lead" style="margin-bottom:15px"></p>
+
+            <div id="scoreRing" class="score-ring">
+              <div class="score-content">
+                <div id="score20" class="score-main">0/20</div>
+                <div id="score50" class="score-sub">0/50 σωστές</div>
+              </div>
+            </div>
+
+            <div class="result-stats">
+              <div class="stat"><strong id="correctStat">0</strong><span>Σωστές</span></div>
+              <div class="stat"><strong id="wrongStat">0</strong><span>Λανθασμένες</span></div>
+              <div class="stat"><strong id="percentStat">0%</strong><span>Ποσοστό</span></div>
+            </div>
+
+            <p class="lead" style="max-width:680px;margin-inline:auto">
+              Οι αναλυτικές απαντήσεις δεν εμφανίζονται σε αυτή τη σελίδα.
+              Αποστέλλονται μαζί με τη βαθμολογία στον καθηγητή.
+            </p>
+
+            <div id="sendStatus" class="send-status sending" aria-live="polite">
+              Αποστολή αποτελεσμάτων…
+            </div>
+            <button id="retryBtn" class="btn btn-danger retry" type="button">
+              Επανάληψη αποστολής
+            </button>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <footer class="footer">
+      Θεωρία ΑΕΠΠ/Πληροφορικής Γ΄ Λυκείου · Ελευθέριος Σ. Μαρίνος
+    </footer>
+  </div>
+
+  <noscript>
+    <div class="noscript">Για να λειτουργήσει το Quiz πρέπει να είναι ενεργοποιημένη η JavaScript.</div>
+  </noscript>
+
+  <script>
+    "use strict";
+
+    const FORM_ENDPOINT = "https://formsubmit.co/marinoseleftherios@gmail.com";
+    const ORIGINAL_QUESTIONS = [{"id": 1, "question": "Ποιος είναι ο σωστός ορισμός του προβλήματος;", "options": ["Μια κατάσταση που χρήζει αντιμετώπισης, απαιτεί λύση και η λύση της δεν είναι γνωστή ούτε προφανής", "Κάθε κατάσταση που λύνεται άμεσα χωρίς επεξεργασία", "Μια διαδικασία εισαγωγής δεδομένων σε υπολογιστή", "Ένα σύνολο εντολών γραμμένο στη ΓΛΩΣΣΑ"], "correct": 0}, {"id": 2, "question": "Ποιο χαρακτηριστικό πρέπει να έχει η λύση μιας κατάστασης ώστε αυτή να θεωρείται πρόβλημα;", "options": ["Να είναι γνωστή εκ των προτέρων", "Να μην είναι γνωστή ούτε προφανής", "Να δίνεται υποχρεωτικά από υπολογιστή", "Να αφορά μόνο μαθηματικά"], "correct": 1}, {"id": 3, "question": "Σε τι οφειλόταν το πρόβλημα του έτους 2000;", "options": ["Στη χρήση μόνο δύο ψηφίων για το έτος", "Στην έλλειψη πληκτρολογίων", "Στη χαμηλή ταχύτητα των υπολογιστών", "Στη χρήση μόνο κεφαλαίων γραμμάτων"], "correct": 0}, {"id": 4, "question": "Γιατί ο κωδικός 010100 δημιουργούσε ασάφεια στους υπολογιστές;", "options": ["Δεν ξεχώριζαν αν αναφερόταν στην 01/01/1900 ή στην 01/01/2000", "Δεν ξεχώριζαν την ημέρα από τον μήνα", "Δεν μπορούσαν να αποθηκεύσουν αριθμούς", "Δεν αναγνώριζαν το ψηφίο 0"], "correct": 0}, {"id": 5, "question": "Η κατανόηση ενός προβλήματος προϋποθέτει:", "options": ["Σωστή διατύπωση από τον δημιουργό και σωστή ερμηνεία από εκείνον που θα το αντιμετωπίσει", "Μόνο σωστή διατύπωση από τον δημιουργό", "Μόνο τη χρήση διαγράμματος", "Αποκλειστικά τη χρήση ηλεκτρονικού υπολογιστή"], "correct": 0}];
+
+    const state = {
+      questions: [],
+      current: 0,
+      answers: {},
+      studentName: "",
+      studentClass: "",
+      submitted: false,
+      payload: null
+    };
+
+    const $ = (id) => document.getElementById(id);
+
+    function shuffle(array) {
+      const copy = [...array];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+
+    function prepareQuestions() {
+      state.questions = shuffle(ORIGINAL_QUESTIONS).map((q) => {
+        const optionObjects = q.options.map((text, index) => ({
+          text,
+          isCorrect: index === q.correct
+        }));
+        return {
+          id: q.id,
+          question: q.question,
+          options: shuffle(optionObjects)
+        };
+      });
+    }
+
+    function showScreen(id) {
+      document.querySelectorAll(".screen").forEach((screen) => screen.classList.remove("active"));
+      $(id).classList.add("active");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function startQuiz() {
+      const name = $("studentName").value.trim().replace(/\s+/g, " ");
+      const schoolClass = $("studentClass").value.trim().replace(/\s+/g, " ");
+
+      if (name.length < 3) {
+        $("startError").textContent = "Γράψε το ονοματεπώνυμό σου.";
+        $("studentName").focus();
+        return;
+      }
+      if (schoolClass.length < 1) {
+        $("startError").textContent = "Γράψε το τμήμα σου.";
+        $("studentClass").focus();
+        return;
+      }
+
+      $("startError").textContent = "";
+      state.studentName = name;
+      state.studentClass = schoolClass;
+      prepareQuestions();
+      $("studentChip").textContent = `${name} · ${schoolClass}`;
+      showScreen("quizScreen");
+      renderQuestion();
+    }
+
+    function renderQuestion() {
+      const q = state.questions[state.current];
+      const total = state.questions.length;
+      const displayNumber = state.current + 1;
+      const saved = state.answers[q.id];
+
+      $("progressText").textContent = `Ερώτηση ${displayNumber} από ${total}`;
+      $("progressBar").style.width = `${(displayNumber / total) * 100}%`;
+      $("questionNumber").textContent = `Ερώτηση ${displayNumber}`;
+      $("questionText").textContent = q.question;
+      $("questionError").textContent = "";
+      $("options").innerHTML = "";
+
+      q.options.forEach((option, optionIndex) => {
+        const label = document.createElement("label");
+        label.className = "option" + (saved === option.text ? " selected" : "");
+        label.innerHTML = `
+          <input type="radio" name="answer" value="${optionIndex}" ${saved === option.text ? "checked" : ""}>
+          <span class="option-letter">${"ΑΒΓΔ"[optionIndex]}</span>
+          <span class="option-text"></span>
+        `;
+        label.querySelector(".option-text").textContent = option.text;
+        label.addEventListener("click", () => selectOption(q.id, option.text, label));
+        $("options").appendChild(label);
+      });
+
+      $("prevBtn").disabled = state.current === 0;
+      $("nextBtn").textContent = state.current === total - 1 ? "Οριστική Υποβολή" : "Επόμενη";
+      $("nextBtn").className = state.current === total - 1 ? "btn btn-danger" : "btn btn-primary";
+    }
+
+    function selectOption(questionId, optionText, selectedLabel) {
+      state.answers[questionId] = optionText;
+      document.querySelectorAll(".option").forEach((label) => label.classList.remove("selected"));
+      selectedLabel.classList.add("selected");
+      selectedLabel.querySelector("input").checked = true;
+      $("questionError").textContent = "";
+    }
+
+    function goNext() {
+      const q = state.questions[state.current];
+      if (!state.answers[q.id]) {
+        $("questionError").textContent = "Επίλεξε μία απάντηση για να συνεχίσεις.";
+        return;
+      }
+
+      if (state.current < state.questions.length - 1) {
+        state.current += 1;
+        renderQuestion();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      } else {
+        finishQuiz();
+      }
+    }
+
+    function goPrevious() {
+      if (state.current > 0) {
+        state.current -= 1;
+        renderQuestion();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+    }
+
+    function calculateResults() {
+      let correct = 0;
+      const details = [];
+
+      state.questions.forEach((q, index) => {
+        const selected = state.answers[q.id] || "Χωρίς απάντηση";
+        const correctOption = q.options.find((o) => o.isCorrect).text;
+        const isCorrect = selected === correctOption;
+        if (isCorrect) correct += 1;
+
+        details.push(
+          `${index + 1}. [${isCorrect ? "ΣΩΣΤΟ" : "ΛΑΘΟΣ"}] ${q.question}\n` +
+          `Απάντηση μαθητή: ${selected}\n` +
+          `Σωστή απάντηση: ${correctOption}`
+        );
+      });
+
+      const total = state.questions.length;
+      const wrong = total - correct;
+      const percentage = Math.round((correct / total) * 100);
+      const grade20 = (correct * 20 / total).toFixed(1).replace(".", ",");
+
+      return { correct, wrong, total, percentage, grade20, details };
+    }
+
+    function buildPayload(results) {
+      const now = new Date();
+      const dateText = new Intl.DateTimeFormat("el-GR", {
+        dateStyle: "full",
+        timeStyle: "medium",
+        timeZone: "Europe/Athens"
+      }).format(now);
+
+      return {
+        "_subject": `ΔΟΚΙΜΗ Αποτελεσμάτων Quiz ΑΕΠΠ – ${state.studentName} (${state.studentClass})`,
+        "_template": "table",
+        "_captcha": "false",
+        "_url": window.location.href,
+        "Ονοματεπώνυμο": state.studentName,
+        "Τμήμα": state.studentClass,
+        "Βαθμολογία_στα_50": `${results.correct}/${results.total}`,
+        "Βαθμός_στα_20": `${results.grade20}/20`,
+        "Ποσοστό": `${results.percentage}%`,
+        "Σωστές": String(results.correct),
+        "Λανθασμένες": String(results.wrong),
+        "Ημερομηνία_Υποβολής": dateText,
+        "Αναλυτικές_Απαντήσεις": results.details.join("\n\n")
+      };
+    }
+
+    function createSubmissionForm(targetName) {
+      const existingForm = document.getElementById("resultsSubmissionForm");
+      if (existingForm) existingForm.remove();
+
+      const form = document.createElement("form");
+      form.id = "resultsSubmissionForm";
+      form.action = FORM_ENDPOINT;
+      form.method = "POST";
+      form.target = targetName;
+      form.acceptCharset = "UTF-8";
+      form.style.display = "none";
+
+      Object.entries(state.payload).forEach(([name, value]) => {
+        const input = document.createElement("input");
+        input.type = "hidden";
+        input.name = name;
+        input.value = String(value);
+        form.appendChild(input);
+      });
+
+      document.body.appendChild(form);
+      return form;
+    }
+
+    function sendResults(openVisibleWindow = false) {
+      const status = $("sendStatus");
+      const retry = $("retryBtn");
+
+      status.className = "send-status sending";
+      status.textContent = "Αποστολή αποτελεσμάτων…";
+      retry.style.display = "none";
+
+      let completed = false;
+      let timeoutId = null;
+
+      if (openVisibleWindow) {
+        const form = createSubmissionForm("_blank");
+        form.submit();
+
+        status.className = "send-status success";
+        status.textContent =
+          "Άνοιξε η σελίδα ασφαλούς αποστολής. Ολοκλήρωσε τυχόν επιβεβαίωση που θα εμφανιστεί.";
+        return;
+      }
+
+      let frame = document.getElementById("submissionFrame");
+      if (frame) frame.remove();
+
+      frame = document.createElement("iframe");
+      frame.id = "submissionFrame";
+      frame.name = "submissionFrame";
+      frame.title = "Αποστολή αποτελεσμάτων";
+      frame.style.display = "none";
+
+      let initialLoadPassed = false;
+
+      frame.addEventListener("load", () => {
+        if (!initialLoadPassed) {
+          initialLoadPassed = true;
+          return;
+        }
+
+        completed = true;
+        if (timeoutId) clearTimeout(timeoutId);
+
+        status.className = "send-status success";
+        status.textContent =
+          "Τα αποτελέσματα παραδόθηκαν στην υπηρεσία αποστολής. Αν είναι η πρώτη δοκιμή, ο καθηγητής πρέπει να ανοίξει το email ενεργοποίησης του FormSubmit.";
+        retry.style.display = "none";
+      });
+
+      document.body.appendChild(frame);
+
+      // Μικρή καθυστέρηση ώστε το iframe να είναι έτοιμο πριν από την υποβολή.
+      window.setTimeout(() => {
+        try {
+          const form = createSubmissionForm("submissionFrame");
+          form.submit();
+        } catch (error) {
+          console.error(error);
+          completed = false;
+        }
+      }, 150);
+
+      timeoutId = window.setTimeout(() => {
+        if (completed) return;
+
+        status.className = "send-status fail";
+        status.textContent =
+          "Δεν επιβεβαιώθηκε η αποστολή. Πάτησε «Ασφαλής αποστολή» για να ανοίξει η υπηρεσία σε νέα καρτέλα.";
+        retry.textContent = "Ασφαλής αποστολή";
+        retry.style.display = "inline-block";
+      }, 12000);
+    }
+
+    function finishQuiz() {
+      if (state.submitted) return;
+      state.submitted = true;
+
+      const results = calculateResults();
+      state.payload = buildPayload(results);
+
+      $("resultName").textContent = `${state.studentName} · Τμήμα ${state.studentClass}`;
+      $("score20").textContent = `${results.grade20}/20`;
+      $("score50").textContent = `${results.correct}/${results.total} σωστές`;
+      $("correctStat").textContent = results.correct;
+      $("wrongStat").textContent = results.wrong;
+      $("percentStat").textContent = `${results.percentage}%`;
+      $("scoreRing").style.setProperty("--score-angle", `${results.percentage * 3.6}deg`);
+
+      showScreen("resultScreen");
+      sendResults();
+    }
+
+    $("startBtn").addEventListener("click", startQuiz);
+    $("nextBtn").addEventListener("click", goNext);
+    $("prevBtn").addEventListener("click", goPrevious);
+    $("retryBtn").addEventListener("click", () => sendResults(true));
+
+    ["studentName", "studentClass"].forEach((id) => {
+      $(id).addEventListener("keydown", (event) => {
+        if (event.key === "Enter") startQuiz();
+      });
+    });
+  </script>
+</body>
+</html>
