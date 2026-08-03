@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="theme-color" content="#07162d">
   <meta name="description" content="Quiz αξιολόγησης Πληροφορικής Γ΄ Λυκείου – 50 ερωτήσεις">
-  <title>Quiz 2 Αξιολόγησης Πληροφορικής | Μαρίνος Ελευθέριος</title>
+  <title>Quiz 2 Δυσκολο Αξιολόγησης Πληροφορικής | Μαρίνος Ελευθέριος</title>
 
   <style>
     :root {
@@ -1307,25 +1307,28 @@ const ORIGINAL_QUESTIONS = [
 
         if (isCorrect) correct += 1;
 
-        const selectedDisplayedIndex = question.options.findIndex(
+        const selectedOption = question.options.find(
           (option) => option.originalIndex === selectedOriginalIndex
         );
 
-        const correctDisplayedIndex = question.options.findIndex(
+        const correctOption = question.options.find(
           (option) => option.originalIndex === question.correct
         );
 
-        const selectedLetter =
-          selectedDisplayedIndex >= 0 ? "ΑΒΓΔ"[selectedDisplayedIndex] : "Χωρίς απάντηση";
+        const selectedText = selectedOption
+          ? selectedOption.text
+          : "Χωρίς απάντηση";
 
-        const correctLetter =
-          correctDisplayedIndex >= 0 ? "ΑΒΓΔ"[correctDisplayedIndex] : "—";
+        const correctText = correctOption
+          ? correctOption.text
+          : "—";
 
         details.push(
-          `${displayedOrderIndex + 1}. [${isCorrect ? "ΣΩΣΤΟ" : "ΛΑΘΟΣ"}] ` +
-          `Κωδικός ερώτησης: ${question.id} | ` +
-          `Απάντηση μαθητή: ${selectedLetter} | ` +
-          `Σωστή απάντηση: ${correctLetter}`
+          `${displayedOrderIndex + 1}. [${isCorrect ? "ΣΩΣΤΟ" : "ΛΑΘΟΣ"}]\n` +
+          `Κωδικός: ${question.id}\n` +
+          `Ερώτηση: ${question.question}\n` +
+          `Απάντηση μαθητή: ${selectedText}\n` +
+          `Σωστή απάντηση: ${correctText}`
         );
       });
 
@@ -1345,7 +1348,14 @@ const ORIGINAL_QUESTIONS = [
         timeZone: "Europe/Athens"
       }).format(new Date());
 
-      return {
+      const chunks = [];
+      const chunkSize = 10;
+
+      for (let i = 0; i < results.details.length; i += chunkSize) {
+        chunks.push(results.details.slice(i, i + chunkSize).join("\n\n"));
+      }
+
+      const payload = {
         "_subject": `Αποτελέσματα Quiz 2 Πληροφορικής – ${state.studentName} (${state.studentClass})`,
         "_template": "table",
         "_captcha": "false",
@@ -1355,11 +1365,18 @@ const ORIGINAL_QUESTIONS = [
         "Βαθμολογία": `${results.correct}/${results.total}`,
         "Βαθμός_στα_20": `${results.grade20}/20`,
         "Ποσοστό": `${results.percentage}%`,
-        "Σωστές": String(results.correct),
-        "Λανθασμένες": String(results.wrong),
-        "Ημερομηνία_Υποβολής": dateText,
-        "Αναλυτικές_Απαντήσεις": results.details.join("\n\n")
+        "Σωστές": results.correct,
+        "Λανθασμένες": results.wrong,
+        "Ημερομηνία": dateText
       };
+
+      chunks.forEach((chunk, index) => {
+        const start = index * chunkSize + 1;
+        const end = Math.min((index + 1) * chunkSize, results.details.length);
+        payload[`Απαντήσεις_${start}_${end}`] = chunk;
+      });
+
+      return payload;
     }
 
     function createSubmissionForm(targetName) {
