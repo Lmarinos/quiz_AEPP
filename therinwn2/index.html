@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="theme-color" content="#07162d">
   <meta name="description" content="Quiz αξιολόγησης Πληροφορικής Γ΄ Λυκείου – 50 ερωτήσεις">
-  <title>Quiz 2 Θερινών | Μαρίνος Ελευθέριος</title>
+  <title>Quiz 2 Θερινων ΠΛΗ| Μαρίνος Ελευθέριος</title>
 
   <style>
     :root {
@@ -933,7 +933,188 @@
       }
     }
 
-  </style>
+  
+  /* =========================================================
+     ΚΙΝΗΤΟ: ΣΤΑΘΕΡΗ ΚΕΦΑΛΙΔΑ ΚΑΙ ΠΡΟΣΑΡΜΟΓΗ ΣΕ ΜΙΑ ΟΘΟΝΗ
+     ========================================================= */
+  @media (max-width: 640px) {
+    html,
+    body {
+      min-height: 100%;
+      overscroll-behavior-y: none;
+    }
+
+    .hero {
+      position: sticky;
+      z-index: 1000;
+      top: 0;
+    }
+
+    .section-divider {
+      position: sticky;
+      z-index: 999;
+      top: 73px;
+    }
+
+    .hero-inner {
+      min-height: 73px;
+    }
+
+    .main {
+      margin-top: 6px;
+      margin-bottom: 8px;
+    }
+
+    .quiz-shell {
+      min-height: calc(100svh - 87px);
+    }
+
+    #quizScreen.active {
+      min-height: calc(100svh - 87px);
+    }
+
+    .quiz-top {
+      padding: 7px 10px 6px;
+    }
+
+    .quiz-meta {
+      margin-bottom: 4px;
+    }
+
+    .progress-track {
+      height: 5px;
+    }
+
+    .quiz-body {
+      min-height: calc(100svh - 132px);
+      display: flex;
+      flex-direction: column;
+      padding: 8px 9px 7px;
+      transform-origin: top left;
+    }
+
+    .question-label {
+      margin-bottom: 3px;
+      font-size: .59rem;
+      line-height: 1.1;
+    }
+
+    .question-text {
+      margin-bottom: 6px;
+      font-size: .82rem;
+      line-height: 1.22;
+    }
+
+    .options {
+      gap: 4px;
+    }
+
+    .option {
+      grid-template-columns: 23px minmax(0, 1fr);
+      gap: 6px;
+      min-height: 35px;
+      padding: 5px 7px;
+      border-radius: 8px;
+    }
+
+    .option-letter {
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
+      font-size: .63rem;
+    }
+
+    .option-text {
+      padding-top: 1px;
+      font-size: .69rem;
+      line-height: 1.2;
+    }
+
+    .error {
+      min-height: .8em;
+      margin-top: 3px;
+      font-size: .65rem;
+      line-height: 1.1;
+    }
+
+    .quiz-actions {
+      position: static !important;
+      margin-top: 6px !important;
+      padding: 0 !important;
+      background: none !important;
+    }
+
+    .quiz-actions .btn {
+      min-height: 34px;
+      padding: 5px 8px;
+      border-radius: 8px;
+      font-size: .7rem;
+    }
+
+    .footer {
+      display: none;
+    }
+
+    body.quiz-running {
+      overflow: hidden;
+    }
+
+    body.quiz-running .main {
+      height: calc(100svh - 81px);
+      overflow: hidden;
+    }
+
+    body.quiz-running .quiz-shell {
+      height: 100%;
+      min-height: 0;
+    }
+
+    body.quiz-running #quizScreen.active {
+      height: 100%;
+      min-height: 0;
+      overflow: hidden;
+    }
+  }
+
+  @media (max-width: 640px) and (max-height: 740px) {
+    .hero-inner {
+      min-height: 63px;
+      grid-template-columns: 78px minmax(0, 1fr);
+      padding: 7px 0 6px;
+    }
+
+    .brand-panel {
+      width: 78px;
+      min-height: 47px;
+    }
+
+    .brand-logo {
+      width: 68px;
+      max-height: 37px;
+    }
+
+    .hero h1 {
+      font-size: .88rem;
+    }
+
+    .hero-subtitle {
+      font-size: .57rem;
+    }
+
+    .section-divider {
+      top: 63px;
+    }
+
+    body.quiz-running .main {
+      height: calc(100svh - 70px);
+    }
+
+    .quiz-body {
+      min-height: calc(100svh - 112px);
+    }
+  }
+
+</style>
 </head>
 
 <body>
@@ -1504,5 +1685,110 @@ const ORIGINAL_QUESTIONS = [
       $("localWarning").style.display = "block";
     }
   </script>
+
+<script>
+(function () {
+  "use strict";
+
+  const MOBILE_WIDTH = 640;
+
+  function quizIsVisible() {
+    const screen = document.getElementById("quizScreen");
+    return screen && screen.classList.contains("active");
+  }
+
+  function resetFit() {
+    const body = document.querySelector("#quizScreen .quiz-body");
+    if (!body) return;
+
+    body.style.transform = "";
+    body.style.width = "";
+    body.style.height = "";
+  }
+
+  function fitQuizToMobileScreen() {
+    if (window.innerWidth > MOBILE_WIDTH || !quizIsVisible()) {
+      document.body.classList.remove("quiz-running");
+      resetFit();
+      return;
+    }
+
+    document.body.classList.add("quiz-running");
+
+    const quizBody = document.querySelector("#quizScreen .quiz-body");
+    const quizScreen = document.getElementById("quizScreen");
+    const quizTop = document.querySelector("#quizScreen .quiz-top");
+
+    if (!quizBody || !quizScreen || !quizTop) return;
+
+    resetFit();
+
+    requestAnimationFrame(function () {
+      const availableHeight = Math.max(
+        250,
+        quizScreen.clientHeight - quizTop.offsetHeight
+      );
+
+      const naturalHeight = quizBody.scrollHeight;
+
+      if (naturalHeight <= availableHeight) {
+        quizBody.style.height = availableHeight + "px";
+        return;
+      }
+
+      const scale = Math.max(
+        0.68,
+        Math.min(1, availableHeight / naturalHeight)
+      );
+
+      quizBody.style.transform = "scale(" + scale + ")";
+      quizBody.style.width = (100 / scale) + "%";
+      quizBody.style.height = (availableHeight / scale) + "px";
+    });
+  }
+
+  function scheduleFit() {
+    requestAnimationFrame(function () {
+      requestAnimationFrame(fitQuizToMobileScreen);
+    });
+  }
+
+  const observer = new MutationObserver(scheduleFit);
+
+  document.addEventListener("DOMContentLoaded", function () {
+    const quizScreen = document.getElementById("quizScreen");
+    const questionText = document.getElementById("questionText");
+    const options = document.getElementById("options");
+
+    if (quizScreen) {
+      observer.observe(quizScreen, {
+        attributes: true,
+        attributeFilter: ["class"]
+      });
+    }
+
+    if (questionText) {
+      observer.observe(questionText, {
+        childList: true,
+        subtree: true,
+        characterData: true
+      });
+    }
+
+    if (options) {
+      observer.observe(options, {
+        childList: true,
+        subtree: true
+      });
+    }
+
+    scheduleFit();
+  });
+
+  window.addEventListener("resize", scheduleFit);
+  window.addEventListener("orientationchange", scheduleFit);
+})();
+</script>
+
 </body>
 </html>
