@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="theme-color" content="#07162d">
   <meta name="description" content="Quiz αξιολόγησης Πληροφορικής Γ΄ Λυκείου – 50 ερωτήσεις">
-  <title>Quiz 2 D Αξιολόγησης Πληροφορικής | Μαρίνος Ελευθέριος</title>
+  <title>Quiz 2 Δ1 Αξιολόγησης Πληροφορικής – Ελαφριά Αποστολή</title>
 
   <style>
     :root {
@@ -1307,20 +1307,14 @@ const ORIGINAL_QUESTIONS = [
           (item) => item.id === question.id
         );
 
-        const selectedText =
-          selectedOriginalIndex === undefined
-            ? "Χωρίς απάντηση"
-            : originalQuestion.options[selectedOriginalIndex];
-
         const correctText = originalQuestion.options[originalQuestion.correct];
         const isCorrect = selectedOriginalIndex === originalQuestion.correct;
 
         if (isCorrect) correct += 1;
 
         details.push(
-          `${displayedOrderIndex + 1}. [${isCorrect ? "ΣΩΣΤΟ" : "ΛΑΘΟΣ"}]\n` +
-          `Ερώτηση: ${originalQuestion.question}\n` +
-          `Απάντηση μαθητή: ${selectedText}\n` +
+          `${displayedOrderIndex + 1}. ${isCorrect ? "ΣΩΣΤΟ" : "ΛΑΘΟΣ"}\n` +
+          `Εκφώνηση: ${originalQuestion.question}\n` +
           `Σωστή απάντηση: ${correctText}`
         );
       });
@@ -1360,7 +1354,8 @@ const ORIGINAL_QUESTIONS = [
 
       for (let start = 0; start < results.details.length; start += chunkSize) {
         const end = Math.min(start + chunkSize, results.details.length);
-        payload[`Απαντήσεις_${start + 1}_${end}`] =
+
+        payload[`Αποτελέσματα_${start + 1}_${end}`] =
           results.details.slice(start, end).join("\n\n");
       }
 
