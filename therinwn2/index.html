@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="theme-color" content="#07162d">
   <meta name="description" content="Quiz αξιολόγησης Πληροφορικής Γ΄ Λυκείου – 50 ερωτήσεις">
-  <title>testtttttttttttttttttttttttttttttttttttttt| Μαρίνος Ελευθέριος</title>
+  <title>Quiz 2 Αξιολόγησης Πληροφορικής | Μαρίνος Ελευθέριος</title>
 
   <style>
     :root {
@@ -1303,21 +1303,29 @@ const ORIGINAL_QUESTIONS = [
 
       state.questions.forEach((question, displayedOrderIndex) => {
         const selectedOriginalIndex = state.answers[question.id];
-        const selectedText =
-          selectedOriginalIndex === undefined
-            ? "Χωρίς απάντηση"
-            : ORIGINAL_QUESTIONS.find((q) => q.id === question.id).options[selectedOriginalIndex];
-
-        const originalQuestion = ORIGINAL_QUESTIONS.find((q) => q.id === question.id);
-        const correctText = originalQuestion.options[question.correct];
         const isCorrect = selectedOriginalIndex === question.correct;
 
         if (isCorrect) correct += 1;
 
+        const selectedDisplayedIndex = question.options.findIndex(
+          (option) => option.originalIndex === selectedOriginalIndex
+        );
+
+        const correctDisplayedIndex = question.options.findIndex(
+          (option) => option.originalIndex === question.correct
+        );
+
+        const selectedLetter =
+          selectedDisplayedIndex >= 0 ? "ΑΒΓΔ"[selectedDisplayedIndex] : "Χωρίς απάντηση";
+
+        const correctLetter =
+          correctDisplayedIndex >= 0 ? "ΑΒΓΔ"[correctDisplayedIndex] : "—";
+
         details.push(
-          `${displayedOrderIndex + 1}. [${isCorrect ? "ΣΩΣΤΟ" : "ΛΑΘΟΣ"}] ${question.question}\n` +
-          `Απάντηση μαθητή: ${selectedText}\n` +
-          `Σωστή απάντηση: ${correctText}`
+          `${displayedOrderIndex + 1}. [${isCorrect ? "ΣΩΣΤΟ" : "ΛΑΘΟΣ"}] ` +
+          `Κωδικός ερώτησης: ${question.id} | ` +
+          `Απάντηση μαθητή: ${selectedLetter} | ` +
+          `Σωστή απάντηση: ${correctLetter}`
         );
       });
 
@@ -1338,7 +1346,7 @@ const ORIGINAL_QUESTIONS = [
       }).format(new Date());
 
       return {
-        "_subject": `Αποτελέσματα Quiz Πληροφορικής – ${state.studentName} (${state.studentClass})`,
+        "_subject": `Αποτελέσματα Quiz 2 Πληροφορικής – ${state.studentName} (${state.studentClass})`,
         "_template": "table",
         "_captcha": "false",
         "_url": window.location.href,
