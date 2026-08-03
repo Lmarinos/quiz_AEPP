@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="theme-color" content="#07162d">
   <meta name="description" content="Quiz αξιολόγησης Πληροφορικής Γ΄ Λυκείου – 50 ερωτήσεις">
-  <title>Quiz 2 Δυσκολο Αξιολόγησης Πληροφορικής | Μαρίνος Ελευθέριος</title>
+  <title>Quiz 2 Δυσ Αξιολόγησης Πληροφορικής | Μαρίνος Ελευθέριος</title>
 
   <style>
     :root {
@@ -1064,7 +1064,7 @@
             </div>
 
             <p class="lead" style="max-width:700px;margin-inline:auto">
-              Οι αναλυτικές απαντήσεις αποστέλλονται στον καθηγητή μαζί με τη βαθμολογία.
+              Η βαθμολογία και η πλήρης αναλυτική αναφορά αποστέλλονται στον καθηγητή μετά την ασφαλή επιβεβαίωση.
             </p>
 
             <div id="sendStatus" class="send-status sending" aria-live="polite">
@@ -1072,7 +1072,7 @@
             </div>
 
             <button id="retryBtn" class="btn btn-submit retry" type="button">
-              Ασφαλής αποστολή
+              Αποστολή αποτελεσμάτων
             </button>
           </div>
         </section>
@@ -1154,7 +1154,8 @@ const ORIGINAL_QUESTIONS = [
       studentName: "",
       studentClass: "",
       submitted: false,
-      payload: null
+      payload: null,
+      reportText: ""
     };
 
     const $ = (id) => document.getElementById(id);
@@ -1348,35 +1349,21 @@ const ORIGINAL_QUESTIONS = [
         timeZone: "Europe/Athens"
       }).format(new Date());
 
-      const chunks = [];
-      const chunkSize = 10;
-
-      for (let i = 0; i < results.details.length; i += chunkSize) {
-        chunks.push(results.details.slice(i, i + chunkSize).join("\n\n"));
-      }
-
-      const payload = {
+      return {
         "_subject": `Αποτελέσματα Quiz 2 Πληροφορικής – ${state.studentName} (${state.studentClass})`,
         "_template": "table",
-        "_captcha": "false",
         "_url": window.location.href,
+        "_honey": "",
         "Ονοματεπώνυμο": state.studentName,
         "Τμήμα": state.studentClass,
         "Βαθμολογία": `${results.correct}/${results.total}`,
         "Βαθμός_στα_20": `${results.grade20}/20`,
         "Ποσοστό": `${results.percentage}%`,
-        "Σωστές": results.correct,
-        "Λανθασμένες": results.wrong,
-        "Ημερομηνία": dateText
+        "Σωστές": String(results.correct),
+        "Λανθασμένες": String(results.wrong),
+        "Ημερομηνία_Υποβολής": dateText,
+        "Σημείωση": "Η πλήρης αναλυτική αναφορά επισυνάπτεται ως αρχείο TXT."
       };
-
-      chunks.forEach((chunk, index) => {
-        const start = index * chunkSize + 1;
-        const end = Math.min((index + 1) * chunkSize, results.details.length);
-        payload[`Απαντήσεις_${start}_${end}`] = chunk;
-      });
-
-      return payload;
     }
 
     function createSubmissionForm(targetName) {
@@ -1389,6 +1376,7 @@ const ORIGINAL_QUESTIONS = [
       form.method = "POST";
       form.target = targetName;
       form.acceptCharset = "UTF-8";
+      form.enctype = "multipart/form-data";
       form.style.display = "none";
 
       Object.entries(state.payload).forEach(([name, value]) => {
@@ -1399,82 +1387,71 @@ const ORIGINAL_QUESTIONS = [
         form.appendChild(input);
       });
 
+      let attachmentAdded = false;
+
+      try {
+        const reportFile = new File(
+          [state.reportText],
+          `quiz2_${state.studentName.replace(/[^a-zA-Z0-9\u0370-\u03FF]+/g, "_")}.txt`,
+          { type: "text/plain;charset=UTF-8" }
+        );
+
+        const dataTransfer = new DataTransfer();
+        dataTransfer.items.add(reportFile);
+
+        const fileInput = document.createElement("input");
+        fileInput.type = "file";
+        fileInput.name = "Αναλυτική_Αναφορά";
+        fileInput.files = dataTransfer.files;
+        fileInput.style.display = "none";
+        form.appendChild(fileInput);
+
+        attachmentAdded = fileInput.files.length === 1;
+      } catch (error) {
+        console.warn("Δεν δημιουργήθηκε συνημμένο αρχείο:", error);
+      }
+
+      if (!attachmentAdded) {
+        const reportField = document.createElement("textarea");
+        reportField.name = "Αναλυτική_Αναφορά";
+        reportField.value = state.reportText;
+        reportField.style.display = "none";
+        form.appendChild(reportField);
+      }
+
       document.body.appendChild(form);
       return form;
     }
 
-    function sendResults(openVisibleWindow = false) {
+    function sendResults() {
       const status = $("sendStatus");
       const retry = $("retryBtn");
-
-      status.className = "send-status sending";
-      status.textContent = "Αποστολή αποτελεσμάτων…";
-      retry.style.display = "none";
 
       if (window.location.protocol === "file:") {
         status.className = "send-status fail";
         status.textContent =
-          "Το Quiz βαθμολογήθηκε, αλλά η αποστολή απαιτεί να ανοίγει από το ανεβασμένο HTTPS link.";
-        retry.style.display = "none";
+          "Η αποστολή λειτουργεί μόνο από το ανεβασμένο HTTPS link και όχι όταν ανοίγεις το αρχείο τοπικά.";
+        retry.style.display = "inline-block";
         return;
       }
 
-      if (openVisibleWindow) {
+      status.className = "send-status sending";
+      status.textContent =
+        "Άνοιγμα ασφαλούς σελίδας αποστολής… Ολοκλήρωσε τον έλεγχο CAPTCHA στη νέα καρτέλα.";
+
+      try {
         const form = createSubmissionForm("_blank");
         form.submit();
 
         status.className = "send-status success";
         status.textContent =
-          "Άνοιξε η σελίδα αποστολής σε νέα καρτέλα. Ολοκλήρωσε τυχόν επιβεβαίωση που θα εμφανιστεί.";
-        return;
-      }
-
-      let completed = false;
-      let timeoutId;
-
-      const previousFrame = document.getElementById("submissionFrame");
-      if (previousFrame) previousFrame.remove();
-
-      const frame = document.createElement("iframe");
-      frame.id = "submissionFrame";
-      frame.name = "submissionFrame";
-      frame.title = "Αποστολή αποτελεσμάτων";
-      frame.style.display = "none";
-
-      let firstLoad = true;
-
-      frame.addEventListener("load", () => {
-        if (firstLoad) {
-          firstLoad = false;
-          return;
-        }
-
-        completed = true;
-        window.clearTimeout(timeoutId);
-        status.className = "send-status success";
-        status.textContent =
-          "Τα αποτελέσματα παραδόθηκαν στην υπηρεσία αποστολής.";
-        retry.style.display = "none";
-      });
-
-      document.body.appendChild(frame);
-
-      window.setTimeout(() => {
-        try {
-          createSubmissionForm("submissionFrame").submit();
-        } catch (error) {
-          console.error(error);
-        }
-      }, 180);
-
-      timeoutId = window.setTimeout(() => {
-        if (completed) return;
-
+          "Άνοιξε νέα καρτέλα. Ο μαθητής πρέπει να ολοκληρώσει το CAPTCHA και να πατήσει την τελική υποβολή εκεί.";
+      } catch (error) {
+        console.error(error);
         status.className = "send-status fail";
         status.textContent =
-          "Δεν επιβεβαιώθηκε η αυτόματη αποστολή. Πάτησε «Ασφαλής αποστολή» για νέα καρτέλα.";
-        retry.style.display = "inline-block";
-      }, 12000);
+          "Δεν άνοιξε η σελίδα αποστολής. Έλεγξε αν ο browser απέκλεισε τα αναδυόμενα παράθυρα και πάτησε ξανά.";
+      }
     }
 
     function finishQuiz() {
@@ -1483,6 +1460,14 @@ const ORIGINAL_QUESTIONS = [
 
       const results = calculateResults();
       state.payload = buildPayload(results);
+      state.reportText =
+        `QUIZ 2 – ΑΝΑΛΥΤΙΚΑ ΑΠΟΤΕΛΕΣΜΑΤΑ\n` +
+        `Ονοματεπώνυμο: ${state.studentName}\n` +
+        `Τμήμα: ${state.studentClass}\n` +
+        `Βαθμολογία: ${results.correct}/${results.total}\n` +
+        `Βαθμός στα 20: ${results.grade20}/20\n` +
+        `Ποσοστό: ${results.percentage}%\n\n` +
+        results.details.join("\n\n");
 
       $("resultName").textContent = `${state.studentName} · Τμήμα ${state.studentClass}`;
       $("score20").textContent = `${results.grade20}/20`;
@@ -1502,13 +1487,18 @@ const ORIGINAL_QUESTIONS = [
       $("scoreRing").style.setProperty("--score-angle", `${results.percentage * 3.6}deg`);
 
       showScreen("resultScreen");
-      sendResults();
+
+      const status = $("sendStatus");
+      status.className = "send-status sending";
+      status.textContent =
+        "Για να σταλούν τα αποτελέσματα, πάτησε το κουμπί «Αποστολή αποτελεσμάτων» και ολοκλήρωσε το CAPTCHA.";
+      $("retryBtn").style.display = "inline-block";
     }
 
     $("startBtn").addEventListener("click", startQuiz);
     $("nextBtn").addEventListener("click", goNext);
     $("prevBtn").addEventListener("click", goPrevious);
-    $("retryBtn").addEventListener("click", () => sendResults(true));
+    $("retryBtn").addEventListener("click", sendResults);
 
     ["studentName", "studentClass"].forEach((id) => {
       $(id).addEventListener("keydown", (event) => {
